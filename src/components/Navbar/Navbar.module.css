@@ -1,0 +1,17 @@
+.nav{
+  grid-area: nav;
+  background-color: darkolivegreen;
+  padding-top: 20px;
+  padding-left: 10%;
+}
+
+.item a{
+  color: white;
+  text-decoration: none;
+}
+.item a.active{
+  color: peru;
+}
+.item{
+  color: white;
+}
