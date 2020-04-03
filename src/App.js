@@ -1,16 +1,19 @@
-import React, { Component } from 'react';
+import React, { Component, Suspense } from 'react';
 import './App.css';
 import Navbar from './components/Navbar/Navbar';
 import { Route, BrowserRouter, withRouter } from 'react-router-dom';
-import DialogsContainer from './components/Dialogs/DialogsContainer';
 import UsersContainer from './components/Users/UsersContainer';
-import ProfileContainer from './components/Profile/ProfileCotainer';
 import HeaderContainer from './components/Header/HeaderContainer';
 import Login from './components/Login/Login';
-import { connect } from 'react-redux';
+import { connect, Provider } from 'react-redux';
 import Preloader from './components/common/preloader/preloader';
 import { compose } from 'redux';
 import {initializeApp} from './redux/app_reducer'
+import store from './redux/redux_store';
+import { withSuspence } from './hoc/withSuspence';
+
+const DialogsContainer = React.lazy(() => import('./components/Dialogs/DialogsContainer'));
+const ProfileContainer = React.lazy(() => import('./components/Profile/ProfileCotainer'));
 
 
 class App extends Component {
@@ -28,9 +31,9 @@ class App extends Component {
         <Navbar />
         <div className="app-wrapper-content">
           <Route path='/dialogs'
-            render={() => <DialogsContainer />} />
-          <Route path='/profile/:userId?'
-            render={() => <ProfileContainer />} />
+            render={withSuspence(DialogsContainer)}/>
+          <Route path='/profile'
+            render={withSuspence(ProfileContainer)}/>
           <Route path='/users'
             render={() => <UsersContainer />} />
           <Route path='/login'
@@ -45,6 +48,16 @@ const mapStateToProps = (state) => ({
   initialized: state.app.initialized
 })
 
-export default compose(
+let AppContainer = compose(
   withRouter,
   connect(mapStateToProps, { initializeApp}))(App)
+
+const MainApp = (props) => {
+    return <BrowserRouter>
+        <Provider store={store}>
+            <AppContainer />
+        </Provider>
+    </BrowserRouter>
+  }
+
+export default MainApp
